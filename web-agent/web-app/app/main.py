@@ -1,8 +1,23 @@
-from agents import Agent, Runner
-import dotenv
-from agents import GuardrailFunctionOutput, Agent, Runner, WebSearchTool, FileSearchTool
-from pydantic import BaseModel
+from flask import Flask, request, render_template
 import asyncio
+import dotenv
+from pydantic import BaseModel
+from agents import Agent, Runner, FileSearchTool, WebSearchTool
+from agents import GuardrailFunctionOutput
+# from main import triage_agent  # Assuming main.py is in the same directory
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        user_input = request.form['user_input']
+        # result = await Runner.run(triage_agent, user_input)
+        # Run the async main function and get the result
+        result = asyncio.run(main(user_input))
+        # return render_template('index.html', result=result.final_output)
+        return render_template('index.html', result=result)
+    return render_template('index.html', result=None)
 
 dotenv.load_dotenv();
 
@@ -45,10 +60,12 @@ triage_agent = Agent(
     handoffs=[history_tutor_agent, math_tutor_agent]
 )
 
-async def main():
-    # result = await Runner.run(triage_agent, "What is the capital of France?")
-    result = await Runner.run(agent, "Which coffee shop should I go to, taking into account my preferences and the weather today in SF?")
+async def main(user_input):
+    result = await Runner.run(triage_agent, user_input)
     print(result.final_output)
+    return result.final_output
+    # result = await Runner.run(triage_agent, "What is the capital of France?")
+    # print(result.final_output)
 
 
 async def homework_guardrail(ctx, agent, input_data):
@@ -59,19 +76,7 @@ async def homework_guardrail(ctx, agent, input_data):
         tripwire_triggered=not final_output.is_homework,
     )
 
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
-    
-
-# Tools
-tool_agent = Agent(
-    name="Assistant",
-    tools=[
-        WebSearchTool(),
-        FileSearchTool(
-            max_num_results=3,
-            vector_store_ids=["VECTOR_STORE_ID"],
-        ),
-    ],
-)
-
+    app.run(debug=True)

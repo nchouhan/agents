@@ -1,0 +1,21 @@
+<!-- filepath: /Users/nirdosh/Projects/openai/agents/web-agent/web-app/app/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Web App</title>
+</head>
+<body>
+    <h1>Ask a Question</h1>
+    <form method="POST" action="/">
+        <label for="user_input">Enter your question:</label>
+        <input type="text" id="user_input" name="user_input" required>
+        <button type="submit">Submit</button>
+    </form>
+    {% if result %}
+        <h2>Result:</h2>
+        <p>{{ result }}</p>
+    {% endif %}
+</body>
+</html>
